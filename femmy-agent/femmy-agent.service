@@ -1,0 +1,13 @@
+[Unit]
+Description=uWSGI instance to serve femmy-agent
+After=network.target
+
+[Service]
+User=root
+Group=nginx
+WorkingDirectory=/home/femmy-agent/femmy-agent
+Environment="PATH=/home/femmy-agent/femmy-agent/femmy-agent-env/bin"
+ExecStart=/home/femmy-agent/femmy-agent/femmy-agent-env/bin/uwsgi --ini femmy-agent.ini
+
+[Install]
+WantedBy=multi-user.target
