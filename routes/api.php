@@ -19,5 +19,5 @@ use Illuminate\Support\Facades\Route;
 // });
 
 // Only need ip, status (banned or unbanned), and jail_name 
-Route::post('ban_ip', 'Banned_IpController@banfromapi')->name('ban_ip_api');
-Route::post('unban_ip', 'Banned_IpController@unbanfromapi')->name('unban_ip_api');
+Route::get('ban_ip', 'Banned_IpController@banfromapi')->name('ban_ip_api');
+Route::get('unban_ip', 'Banned_IpController@unbanfromapi')->name('unban_ip_api');

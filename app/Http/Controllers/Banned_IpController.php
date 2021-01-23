@@ -124,8 +124,11 @@ class Banned_IpController extends Controller
             $url = 'http://'.$ip_host.':'.$port_host.'/api/v1/ban_ip?jail_name='.$request->jail_name.'&ip='.$ip;
             $response = ApiHelper::GetApi($url);
         }
-
-        // TelegramHelper::storeMessage("<b style='color:#DB0A40;'>[ INFO ]</b>\n".$log);
+        if(!isset($cek_share)){
+            $cek_share = " Only one host available, ip not shared.";
+            $response = " Done!";
+        }
+        TelegramHelper::storeMessage("<b style='color:#DB0A40;'>[ INFO ]</b>\n".$log);
         Log::create(['log' => $log, 'level' => $level]);
         return response()->json('IP '.$ip.' reported or banned successfully.'.$cek_share." ".$response, 200);
     }
