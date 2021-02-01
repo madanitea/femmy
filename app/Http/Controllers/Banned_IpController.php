@@ -34,19 +34,10 @@ class Banned_IpController extends Controller
         $log = $user_now." banned IP ".$ip." in ".$jails->name." at ".$hosts->ip.".";
         $level = "success";
 
-        // $send = Jail::findOrFail($jail);
-        // $host = Host::findOrFail($send->host_id);
-        // $url = 'http://'.$host->ip.':'.$host->port.'/api/v1/ban_ip?jail_name='.$jails->name.'&ip='.$ip;
-        // ApiHelper::GetApi($url);
-        // Share banned IP to other host
-        $same_on_another = Jail::where('name',$jails->name)->get();
-        foreach ($same_on_another as $key => $same_jail) {
-            $host = Host::findOrFail($same_jail->host_id);
-            $ip_host = $host->ip;
-            $port_host = $host->port;
-            $url = 'http://'.$ip_host.':'.$port_host.'/api/v1/ban_ip?jail_name='.$jails->name.'&ip='.$ip;
-            ApiHelper::GetApi($url);
-        }
+        $send = Jail::findOrFail($jail);
+        $host = Host::findOrFail($send->host_id);
+        $url = 'http://'.$host->ip.':'.$host->port.'/api/v1/ban_ip?port='.$jails->port.'&ip='.$ip;
+        ApiHelper::GetApi($url);
         TelegramHelper::storeMessage("<b style='color:#121F45;'>[ INFO ]</b>\n".$log);
         // Store log first
     	Log::create(['log' => $log, 'level' => $level]);
@@ -60,31 +51,15 @@ class Banned_IpController extends Controller
         $ip = Banned_Ip::findOrFail($id);
     	$user_now = Auth::user()->full_name;
     	$host = Host::findOrFail($host);
-    	$jail = Jail::findOrFail($jail);
+        $jail = Jail::findOrFail($jail);
         $log = $user_now." unbanned IP ".$ip->ip." in ".$jail->name." at ".$host->ip.".";
         $level = "success";
-
-        // $send = Jail::findOrFail($jail);
-        // $host = Host::findOrFail($send->host_id);
-        // $url = 'http://'.$host->ip.':'.$host->port.'/api/v1/unban_ip?jail_name='.$jail->name.'&ip='.$ip->ip;
-        // ApiHelper::GetApi($url);
-
-        // Share unbanned IP to other host
-        $same_on_another = Jail::where('name',$jail->name)->get();
-        foreach ($same_on_another as $key => $same_jail) {
-            $host = Host::findOrFail($same_jail->host_id);
-            $ip_host = $host->ip;
-            $port_host = $host->port;
-            $url = 'http://'.$ip_host.':'.$port_host.'/api/v1/unban_ip?jail_name='.$jail->name.'&ip='.$ip->ip;
-            ApiHelper::GetApi($url);
-        }
-
+        $url = 'http://'.$host->ip.':'.$host->port.'/api/v1/unban_ip?port='.$jail->port.'&ip='.$ip->ip;
+        ApiHelper::GetApi($url);
         TelegramHelper::storeMessage("<b style='color:#121F45;'>[ INFO ]</b>\n".$log);
-        // Store log first
-    	Log::create(['log' => $log, 'level' => $level]);
-    	$unban = Banned_Ip::findOrFail($id);
-    	$unban->status = 'unbanned';
-    	$unban->save();
+        Log::create(['log' => $log, 'level' => $level]);
+    	$ip->status = 'unbanned';
+        $ip->save();
         return redirect()->route('jails.detail',[$host_source,$jail])
                         ->with('success','IP Unbanned!');
     }
@@ -120,9 +95,10 @@ class Banned_IpController extends Controller
             $host = Host::findOrFail($same_jail->host_id);
             $ip_host = $host->ip;
             $port_host = $host->port;
-            $cek_share= " shared to ".$ip_host;
-            $url = 'http://'.$ip_host.':'.$port_host.'/api/v1/ban_ip?jail_name='.$request->jail_name.'&ip='.$ip;
+            $cek_share= " shared to all hosts on the system.";
+            $url = 'http://'.$ip_host.':'.$port_host.'/api/v1/ban_ip?port='.$same_jail->port.'&ip='.$ip;
             $response = ApiHelper::GetApi($url);
+            echo "shared".$url;
         }
         if(!isset($cek_share)){
             $cek_share = " Only one host available, ip not shared.";
@@ -130,7 +106,7 @@ class Banned_IpController extends Controller
         }
         TelegramHelper::storeMessage("<b style='color:#DB0A40;'>[ INFO ]</b>\n".$log);
         Log::create(['log' => $log, 'level' => $level]);
-        return response()->json('IP '.$ip.' reported or banned successfully.'.$cek_share." ".$response, 200);
+        return response()->json('IP '.$ip.' reported or banned successfully.'.$cek_share, 200);
     }
 
     public function unbanfromapi(Request $request){
@@ -149,7 +125,7 @@ class Banned_IpController extends Controller
         $host_name = $host->name;
         $host_ip = $host->ip;
         $level = 'warning';
-        $log = "Host ".$host_name." with IP address ".$host_ip." has unbanned ".$ip." from the system, this IP will be automatically unbanned to all hosts and the jail.";
+        $log = "Host ".$host_name." with IP address ".$host_ip." has unbanned ".$ip.". On another host, this IP will banned according to its jail configuration.";
 
         // Share unbanned IP to other host
         $same_on_another = Jail::where('name',$request->jail_name)->where('host_id','!=',$host_id)->get();
@@ -157,7 +133,7 @@ class Banned_IpController extends Controller
             $host = Host::findOrFail($same_jail->host_id);
             $ip_host = $host->ip;
             $port_host = $host->port;
-            $url = 'http://'.$ip_host.':'.$port_host.'/api/v1/unban_ip?jail_name='.$request->jail_name.'&ip='.$ip;
+            $url = 'http://'.$ip_host.':'.$port_host.'/api/v1/unban_ip?port='.$same_jail->port.'&ip='.$ip;
             ApiHelper::GetApi($url);
         }
 

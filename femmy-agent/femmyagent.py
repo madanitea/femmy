@@ -1,5 +1,6 @@
 # Import some library
 import os
+import subprocess
 from flask import Flask, request, jsonify
 
 # Setting up the flask framework
@@ -119,40 +120,40 @@ def disable_jail():
 def trust_ip():
 	query_parameters = request.args.get
 	ip = query_parameters('ip')
-	jail_name = query_parameters('jail_name')
-	command = 'fail2ban-client set '+jail_name+' addignoreip '+ip
-	os.system(command)
-	return 'success', 200
+	port = query_parameters('port')
+	cmd = 'iptables -A INPUT -p tcp -s %s --dport %s -j ACCEPT' % (ip,port)
+	output = os.system(cmd)
+	return str(output)+' | '+str(cmd), 200
 
 # A route to ban an ip
 @application.route('/api/v1/ban_ip', methods=['GET'])
 def ban_ip():
 	query_parameters = request.args.get
 	ip = query_parameters('ip')
-	jail_name = query_parameters('jail_name')
-	command = 'fail2ban-client set '+jail_name+' banip '+ip
-	os.system(command)
-	return 'success', 200
+	port = query_parameters('port')
+	cmd = 'iptables -A INPUT -p tcp -s %s --dport %s -j REJECT' % (ip,port)
+	output = os.system(cmd)
+	return str(output)+' | '+str(cmd), 200
 
 # A route to untrust an ip
 @application.route('/api/v1/untrust_ip', methods=['GET'])
 def untrust_ip():
 	query_parameters = request.args.get
 	ip = query_parameters('ip')
-	jail_name = query_parameters('jail_name')
-	command = 'fail2ban-client set '+jail_name+' delignoreip '+ip
-	os.system(command)
-	return 'success', 200
+	port = query_parameters('port')
+	cmd = 'iptables -D INPUT -p tcp -s %s --dport %s -j ACCEPT' % (ip,port)
+	output = os.system(cmd)
+	return str(output)+' | '+str(cmd), 200
 
 # A route to unban an ip
 @application.route('/api/v1/unban_ip', methods=['GET'])
 def unban_ip():
 	query_parameters = request.args.get
 	ip = query_parameters('ip')
-	jail_name = query_parameters('jail_name')
-	command = 'fail2ban-client set '+jail_name+' unbanip '+ip
-	os.system(command)
-	return 'success', 200
+	port = query_parameters('port')
+	cmd ='iptables -D INPUT -p tcp -s %s --dport %s -j REJECT' % (ip,port)
+	output = os.system(cmd)
+	return str(output)+' | '+str(cmd), 200
 
 # Start the API Server
 if __name__ == "__main__":

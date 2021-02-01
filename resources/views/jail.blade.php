@@ -13,7 +13,7 @@
                         <div class="d-flex align-items-center">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb m-0 p-0">
-                                    <li class="breadcrumb-item"><a href="TA-Jail.html">Jails</a>
+                                    <li class="breadcrumb-item"><a href="{{ route('jails.index') }}">Jails</a>
                                     </li>
                                 </ol>
                             </nav>

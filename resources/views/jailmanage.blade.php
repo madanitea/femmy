@@ -52,7 +52,9 @@
                 <!-- *************************************************************** -->
                 <h3>Choose Jail
                 @can('jail-create') 
-                    or <button class="btn btn-primary" data-toggle="modal" data-target="#CreateJail">+ Create Jail</button></h3>
+                    or <button class="btn btn-primary" onclick="alert('Sorry, this feature is still under developement.')">+ Create Jail (Custom)</button> or 
+                    <button class="btn btn-success" data-toggle="modal" data-target="#CreateJail">+ Create Jail (Wizard)</button>
+                    </h3>
                     <!-- Modal -->
                     <div class="modal fade" id="CreateJail" tabindex="-1" role="dialog" aria-labelledby="Create Jail" aria-hidden="true">
                       <div class="modal-dialog modal-dialog-centered" role="document">
