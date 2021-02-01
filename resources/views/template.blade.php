@@ -97,7 +97,7 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"
                                 aria-haspopup="true" aria-expanded="false" style="color: #777;">
-                                <img src="{{ asset('assets/images/users/5.jpg') }}" alt="user" class="rounded-circle mr-1"
+                                <img src="{{ asset('assets/images/users/profil.png') }}" alt="user" class="rounded-circle mr-1"
                                     width="40">
                                 Hello, {{ Auth::user()->full_name }}
                             </a>
